@@ -127,6 +127,50 @@ class SVG(Element):
                 self._height = None
             else:
                 self._height = Unit(svg.height).to("px")
+        raise TypeError('fname is None!')
+
+    @property
+    def width(self):
+        """Get width of the svg file in px"""
+        if self._width:
+            return self._width.value
+
+    @property
+    def height(self):
+        """Get height of the svg file in px"""
+        if self._height:
+            return self._height.value
+
+def SVGStr(Element):
+    """SVG from the string.
+
+    Parameters
+    ----------
+    xml_string : str
+       the xml represented by a str
+    fix_mpl : bool
+        replace pt units with px units to fix files created with matplotlib
+    """
+
+    def __init__(self, xml_string: str=None, fix_mpl=False):
+        if xml_string:
+            svg = _transform.fromfile(xml_string)
+            if fix_mpl:
+                w, h = svg.get_size()
+                svg.set_size((w.replace("pt", ""), h.replace("pt", "")))
+            super(SVG, self).__init__(svg.getroot().root)
+
+            # if height/width is in % units, we can't store the absolute values
+            if svg.width.endswith("%"):
+                self._width = None
+            else:
+                self._width = Unit(svg.width).to("px")
+            if svg.height.endswith("%"):
+                self._height = None
+            else:
+                self._height = Unit(svg.height).to("px")
+        else:
+            raise TypeError('xml_string is None!')
 
     @property
     def width(self):
